@@ -1,7 +1,7 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
-import pandas as pd
+import json
 import smtplib
 import os
 youtube_trending_url = "https://www.youtube.com/feed/trending"
@@ -44,7 +44,7 @@ def parse_videos(video):
     # to see text you have to put .text
     num_views_total = num_views[0].text.replace(" views", "")
     #num_views_total = num_views
-    hours_uploaded = num_views[1].text
+    #hours_uploaded = num_views[1].text
 
     #showing description of video
     description = video.find_element(By.ID, 'description-text').text
@@ -55,10 +55,10 @@ def parse_videos(video):
         'thumbnail_url':thumbnail_url,
         'channel_name':channel_name,
         'num_views_total':num_views_total,
-        'hours_uploaded':hours_uploaded,
+        
         'description':description
     }
-def send_email():
+def send_email(body):
     #gmail_user="senderemail.tester86@gmail.com"
     #print('Password', gmail_password)
     try:
@@ -69,8 +69,8 @@ def send_email():
         gmail_password=os.environ['gmail_password']
         #sent_from = sender_email
         #to = [receiver_email]
-        subject = 'Test Message'
-        body = 'Hey, this is a test from replit'
+        subject = 'YouTube Top 10 videos'
+        #body = 'Hey, this is a test from replit'
 
         email_text = f"""\
         From: {sender_email}
@@ -88,21 +88,21 @@ def send_email():
         print('Bad Connection')
 
 if __name__ == "__main__":
-    #print('Creating driver')
-    #driver = get_driver()
+    print('Creating driver')
+    driver = get_driver()
 
-    #print('Fetching trending videos')
-    #videos = get_videos(driver)
+    print('Fetching trending videos')
+    videos = get_videos(driver)
     
 
-    #print('Get the videos')
-    #video_div_tag = "ytd-video-renderer"
+    print('Get the videos')
+    video_div_tag = "ytd-video-renderer"
     
-    #print('Page Title:', driver.title)  
-    #print(f'Found {len(videos)} videos')
-    #print('Parsing top 10 videos')
-    # list comprehension
-    #video_data = [parse_videos(video) for video in videos[:11]]
+    print('Page Title:', driver.title)  
+    print(f'Found {len(videos)} videos')
+    print('Parsing top 10 videos')
+    #list comprehension
+    video_data = [parse_videos(video) for video in videos[:11]]
     #print(video_data)
 
     #print('Saving the data to CSV')
@@ -118,10 +118,12 @@ if __name__ == "__main__":
     # getting title of video
     
     # xpath in selenium, used it for span
-    
-    
-    print("send an email with results")
+      
+    print("Send results over email")
     #creating send email function
-    send_email()
+    #dumps takes string and converts to dictionary
+    body=json.dumps(video_data, indent = 2)
+    send_email(body)
+    print('Completed')
 
 
