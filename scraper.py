@@ -2,7 +2,8 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 import pandas as pd
-
+import smtplib
+import os
 youtube_trending_url = "https://www.youtube.com/feed/trending"
 
 # creating a function so we don't have to run the function out again and again
@@ -57,31 +58,60 @@ def parse_videos(video):
         'hours_uploaded':hours_uploaded,
         'description':description
     }
+def send_email():
+    #gmail_user="senderemail.tester86@gmail.com"
+    #print('Password', gmail_password)
+    try:
+        server_ssl = smtplib.SMTP_SSL('smtp.gmail.com', 465)
+        server_ssl.ehlo()
+        sender_email = "senderemail.tester86@gmail.com"
+        receiver_email = "senderemail.tester86@gmail.com"
+        gmail_password=os.environ['gmail_password']
+        #sent_from = sender_email
+        #to = [receiver_email]
+        subject = 'Test Message'
+        body = 'Hey, this is a test from replit'
+
+        email_text = f"""\
+        From: {sender_email}
+        To: {receiver_email}
+        Subject: {subject}
+
+        {body}
+        """ 
+        server_ssl.login(sender_email, gmail_password)
+        server_ssl.sendmail(sender_email, receiver_email, email_text)
+        server_ssl.close()
+        #starttls makes sure communication is secure or you can use ssl
+        #server.starttls()
+    except:
+        print('Bad Connection')
 
 if __name__ == "__main__":
-    print('Creating driver')
-    driver = get_driver()
+    #print('Creating driver')
+    #driver = get_driver()
 
-    print('Fetching trending videos')
-    videos = get_videos(driver)
+    #print('Fetching trending videos')
+    #videos = get_videos(driver)
     
 
     #print('Get the videos')
     #video_div_tag = "ytd-video-renderer"
     
     #print('Page Title:', driver.title)  
-    print(f'Found {len(videos)} videos')
-    print('Parsing top 10 videos')
+    #print(f'Found {len(videos)} videos')
+    #print('Parsing top 10 videos')
     # list comprehension
-    video_data = [parse_videos(video) for video in videos[:11]]
-    print(video_data)
+    #video_data = [parse_videos(video) for video in videos[:11]]
+    #print(video_data)
 
-    print('Saving the data to CSV')
-    videos_df = pd.DataFrame(video_data)
-    print(videos_df)
+    #print('Saving the data to CSV')
+    #videos_df = pd.DataFrame(video_data)
+    #print(videos_df)
     # to avoid having an index column, add index=None
     # make sure to store as .csv file
-    videos_df.to_csv('trending.csv', index=None)
+    # index=None takes out the index in csv file
+    #videos_df.to_csv('trending.csv', index=None)
     # infor to extract, title, url, thumbnail_url, channel, views, uploaded, description
     # selecting 1st video
     #video = videos[0]
@@ -90,19 +120,8 @@ if __name__ == "__main__":
     # xpath in selenium, used it for span
     
     
-    
-    #print('Title: ', title)
-    #print('URL: ', url)
-    #print('Thumbnail URL: ', thumbnail_url)
-    #print('Channel name: ', channel_name)
-    #print('Num views: ', num_views_total)
-    #print('Uploaded time: ', hours_uploaded)
-    #print('Description: ', description)
-    #print(type(num_views))
-    #print(type(num_tag))
-
-
-
-# need to create webdriver
+    print("send an email with results")
+    #creating send email function
+    send_email()
 
 
